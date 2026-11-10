@@ -1,55 +1,40 @@
 # Devlights Bootcamp 5.0 | Data & Cloud
 
-## Starting the containers
+## Setup
 
 Requirement: [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
 
-From the repo root:
-
 ```bash
-docker compose up 
-
-or 
-
+cp .env.sample .env     # PowerShell: Copy-Item .env.sample .env
 docker compose up -d
 ```
 
-This starts two services:
+The default values in `.env` work as-is, but you can change them if you want. If you change the Postgres credentials after the first run, do `docker compose down` and delete `./pgdata`.
 
-| Service    | Container              | URL / Port              | Credentials                            |
-|------------|------------------------|-------------------------|----------------------------------------|
-| PostgreSQL | `my_postgres_bootcamp` | `localhost:5433`        | `myuser` / `mypassword`, DB `postgres` |
-| pgAdmin    | `my_pgadmin_bootcamp`  | http://localhost:8080   | `admin@example.com` / `adminpassword`  |
-
-Check that they are running:
-
-```bash
-docker compose ps
-```
+| Service    | URL / Port            | Credentials (defaults)                 |
+| ---------- | --------------------- | -------------------------------------- |
+| PostgreSQL | `localhost:5433`      | `myuser` / `mypassword`, DB `postgres` |
+| pgAdmin    | http://localhost:8080 | `admin@example.com` / `adminpassword`  |
+| Metabase   | http://localhost:3000 | Created on first login                 |
 
 ## Connecting to the database
 
-**From the terminal (psql):**
+- **psql:** `docker exec -it my_postgres_bootcamp psql -U myuser -d postgres`
+- **pgAdmin:** log in, then right-click Servers > Register > Server. In the Connection tab use host `postgres-db`, port `5432`, plus your user, password and database.
+- **External client (DBeaver, VS Code, etc.):** host `localhost`, port `5433`.
 
-```bash
-docker exec -it my_postgres_bootcamp psql -U myuser -d postgres
-```
+> Inside Docker (pgAdmin, Metabase) the host is `postgres-db:5432`, not `localhost:5433`.
 
-**From pgAdmin:** open http://localhost:8080 and register a new server with:
+## Metabase
 
-- Host: `postgres-db` (the service name on the Docker network, not `localhost`)
-- Port: `5432`
-- Username: `myuser`
-- Password: `mypassword`
-
-**From an external client (DBeaver, VS Code, etc.):** host `localhost`, port `5433`.
+Open http://localhost:3000, complete the initial setup and add PostgreSQL as a data source (host `postgres-db`, port `5432`, same user, password and database as in your `.env`).
 
 ## Useful commands
 
 ```bash
-docker compose logs -f postgres-db   # follow the logs
-docker compose stop                  # stop without removing anything
-docker compose down                  # stop and remove the containers
+docker compose ps        # status
+docker compose logs -f   # logs
+docker compose down      # stop and remove containers
 ```
 
-Postgres data is stored in the `./pgdata` folder, so it survives a `docker compose down`. To start from scratch, delete that folder.
+Data lives in `./pgdata` and survives `down`. Delete that folder to start from scratch.
